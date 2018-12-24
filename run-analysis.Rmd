@@ -1,0 +1,103 @@
+---
+title: "Week4-project"
+author: "visafefe@gmail.com"
+date: "24 décembre 2018"
+output: html_document
+---
+```{r}
+##Question 1
+## File unzip will be done mannually 
+## Unzip file in our R Working Directory
+
+##The file is unziped directly in the folder "UCI HAR Dataset"
+
+
+# We will create a path to to have the possibility to read them all
+
+chemin <- file.path(getwd(),"UCI HAR Dataset")
+library(data.table)
+library(dplyr)
+
+way <- function(rep,fil)
+   {
+     file.path(chemin,rep,fil)
+   }
+
+## the function way created here help to learn files on path
+
+
+
+##The generate table Name is completeTable (10299 Obs of 563 variables)
+##The table contains 2 variables more than the base.. The two variables are renamed in the last part
+## column "subject" and column "activity"
+
+
+##Question2
+## Reading  Features files 
+## Will permit to rename the variables
+
+##the Generated table names is MeanStandardDEVIATION (10299 Obs of 68 variables)
+##As requested its an Extracts only the measurements on the mean and standard deviation for each measurement. 
+
+##Question3
+## Reading  activity_labels files 
+## Will permit to replace activity column by a real description
+
+tableActivityLabel <- fread(file.path(chemin, "activity_labels.txt"))
+setnames(tableActivityLabel, c("activity", "Nom"))
+
+MeanStandardDEVIATION$activity <- tableActivityLabel[MeanStandardDEVIATION$activity,2]
+
+##Question4
+## In the way to clear the dataset incoherent name
+## Through the table incoherent name like "Acc" will be replaced by "accelerometer"
+## All the tables name will be in lower case
+
+names(MeanStandardDEVIATION)<-gsub("Acc", "accelerometer", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("Gyro", "gyroscope", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("BodyBody", "body", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("Mag", "magnitude", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("^t", "time", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("^f", "frequency", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("tBody", "timeBody", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("-mean()", "mean", names(MeanStandardDEVIATION), ignore.case = TRUE)
+names(MeanStandardDEVIATION)<-gsub("-std()", "std", names(MeanStandardDEVIATION), ignore.case = TRUE)
+names(MeanStandardDEVIATION)<-gsub("-freq()", "frequency2", names(MeanStandardDEVIATION), ignore.case = TRUE)
+
+
+##Question5
+## Creates a second,independent tidy data set and ouput it
+
+ IndTidyData<- MeanStandardDEVIATION %>%
+    group_by(subject, activity) %>%
+    summarise_all(funs(mean))
+ 
+##The result will be writen on an external file in the local Working directorty...
+
+ write.table(IndTidyData, file = "tidydata.txt")
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
