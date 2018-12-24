@@ -1,5 +1,12 @@
 
-#  First approach - QUESTION1
+##Question 1
+## File unzip will be done mannually 
+## Unzip file in our R Working Directory
+
+##The file is unziped directly in the folder "UCI HAR Dataset"
+
+
+# We will create a path to to have the possibility to read them all
 
 chemin <- file.path(getwd(),"UCI HAR Dataset")
 library(data.table)
@@ -29,35 +36,55 @@ names(completeTable)[1] <- "subject"
 names(completeTable)[2] <- "activity"
 
 
-# Second Approach - QUESTION 2
-TidyCompleteTable <- select(completeTable, -subject,-activity)
+##The generate table Name is completeTable
+##The table conains 2 variables more than the base.. The two variable are renamed in the last part
+## column "subject" and column "activity"
 
 
-
-
+##Question2
+## Reading  Features files 
+## Will permit to rename the variables
 
 tableFeatures <- fread(file.path(chemin, "features.txt"))
 setnames(tableFeatures, c("rang", "Nom"))
-setnames(TidyCompleteTable,tableFeatures$Nom)
-difference <- tableFeatures[grepl("mean\\(\\)|std\\(\\)",Nom)]
 
-MeanStandardDEVIATION <- TidyCompleteTable[,difference$Nom,with=FALSE]
+NamedFeatures <- c("subject", "activity",as.character(tableFeatures$Nom))
+setnames(completeTable,NamedFeatures)
+
+NamedFeatures1 <- c("subject", "activity",as.character(tableFeatures$Nom[grep("mean\\(\\)|std\\(\\)", tableFeatures$Nom)]))
+MeanStandardDEVIATION <- completeTable[,NamedFeatures1,with=FALSE]
 
 
-# THIRD approach  - QUESTION3 dataset of activity
+##Question3
+## Reading  activity_labels files 
+## Will permit to replace activity column by a real description
 
 tableActivityLabel <- fread(file.path(chemin, "activity_labels.txt"))
 setnames(tableActivityLabel, c("activity", "Nom"))
 
-# 4th TIDY DATASET APPROPRIATLY NAMED
+MeanStandardDEVIATION$activity <- tableActivityLabel[MeanStandardDEVIATION$activity,2]
 
-## we will try first to split the table 
-## Part1 is already named
-Part1 <- select(complete1Table, activity:subject)
+##Question4
+## In the way to clear the dataset incoherent name
 
-##Part2 will now be named through another dataset
-Part2 <- select(complete1Table,-(activity:subject))
-Part2 <- setnames(Part2,tableFeatures$Nom)
+names(MeanStandardDEVIATION)<-gsub("Acc", "accelerometer", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("Gyro", "gyroscope", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("BodyBody", "body", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("Mag", "magnitude", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("^t", "time", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("^f", "frequency", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("tBody", "timeBody", names(MeanStandardDEVIATION))
+names(MeanStandardDEVIATION)<-gsub("-mean()", "mean", names(MeanStandardDEVIATION), ignore.case = TRUE)
+names(MeanStandardDEVIATION)<-gsub("-std()", "std", names(MeanStandardDEVIATION), ignore.case = TRUE)
+names(MeanStandardDEVIATION)<-gsub("-freq()", "frequency2", names(MeanStandardDEVIATION), ignore.case = TRUE)
 
-## We will now simply merge the two part for the requested result
-completeTidyTABLE <- cbind(Part1,Part2)
+
+##Question5
+## Creates a second,independent tidy data set and ouput it
+
+IndTidyData<- MeanStandardDEVIATION %>%
+  group_by(subject, activity) %>%
+  summarise_all(funs(mean))
+
+write.table(IndTidyData, file = "tidydata.txt")
+
