@@ -16,4 +16,4 @@ This repository contains four files required for the assignment to be graded:
     README.md - Explains how all of the scripts work and how they are connected
     CodeBook.md - Describes the variables, the data, and any transformations or work that you performed to clean up the data
     run_analysis.R - R-script that performs the analysis on the data retrieved from
-    run_analysis.Rmd containing the tidy data which is created by running the run_analysis.R file
+    run_analysis.Rmd containing all the code and a summary of all the variable and description how that work.
