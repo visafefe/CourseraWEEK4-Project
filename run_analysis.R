@@ -86,5 +86,5 @@ IndTidyData<- MeanStandardDEVIATION %>%
   group_by(subject, activity) %>%
   summarise_all(funs(mean))
 
-write.table(IndTidyData, file = "tidydata.txt")
+write.table(IndTidyData, file = "tidydata.txt",row.names = FALSE)
 
